@@ -14,9 +14,6 @@
 // @grant       GM_registerMenuCommand
 // @grant       GM_unregisterMenuCommand
 // @grant       GM_xmlhttpRequest
-// @require     https://update.greasyfork.org/scripts/530648/1558616/FileDownloader-Module.js
-// @require     https://update.greasyfork.org/scripts/530526/1558038/ProgressUI-Module.js
-// @require     https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js
 // @run-at      document-end
 // ==/UserScript==
 
