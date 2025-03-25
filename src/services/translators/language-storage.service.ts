@@ -1,9 +1,9 @@
-import { GMStorageService, StorageKey } from "../storage";
+import { storageHandler, StorageKey } from "../storage";
 import { ILanguageStorage } from "./interface.translators";
 
 export class LocalStorageLanguageService implements ILanguageStorage {
   getTargetLanguage(): string {
-    return GMStorageService.get(
+    return storageHandler.get(
       StorageKey.targetLang,
       StorageKey.defaultTargetLang,
     );

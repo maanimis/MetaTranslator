@@ -1,20 +1,19 @@
 import { StorageKey } from "./enum.storage";
 
 export interface IStorage {
-  [StorageKey.isEnable]: boolean;
-  [StorageKey.toLang]: string;
-  [StorageKey.lastUsed]: number;
+  [StorageKey.targetLang]: string;
+  [StorageKey.defaultTargetLang]: string;
 }
 
 export interface IStorageEvent {
-  onChange<T>(
-    key: StorageKey,
-    callback: VMScriptGMValueChangeCallback<T>,
+  onChange<T extends keyof IStorage>(
+    key: T,
+    callback: (newValue: IStorage[T], oldValue: IStorage[T]) => void,
   ): void;
 }
 
 export interface IStorageService {
-  get<T = null>(key: StorageKey, defaultValue: T): T;
-  set<T>(key: StorageKey, value: T): void;
-  remove(key: StorageKey): void;
+  get<T extends keyof IStorage>(key: T, defaultValue: IStorage[T]): IStorage[T];
+  set<T extends keyof IStorage>(key: StorageKey, value: IStorage[T]): void;
+  remove(key: keyof IStorage): void;
 }
