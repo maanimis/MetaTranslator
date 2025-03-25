@@ -7,20 +7,29 @@ const {
 
 module.exports = {
   name: {
-    $: "webpack-userscript-template",
-    cn: "中文名",
-    en: "english name",
+    $: "MetaTranslator",
+    en: "MetaTranslator",
   },
-  namespace: "https://trim21.me/",
+  namespace: "Violentmonkey Scripts",
   version: version,
   author: author,
   source: repository.url,
-  // 'license': 'MIT',
-  match: ["*://www.example.com/", "*://example.com/*"],
-  require: [
-    `https://cdn.jsdelivr.net/npm/jquery@${dependencies.jquery}/dist/jquery.min.js`,
+  'license': 'MIT',
+  match: ["*://*/*"],
+  grant: [
+    "GM_setValue",
+    "GM_getValue",
+    "GM_deleteValue",
+    "GM_addValueChangeListener",
+    "GM_registerMenuCommand",
+    "GM_unregisterMenuCommand",
+    "GM_xmlhttpRequest",
   ],
-  grant: ["GM.xmlHttpRequest"],
-  connect: ["httpbin.org"],
+  require: [
+    'https://update.greasyfork.org/scripts/530648/1558616/FileDownloader-Module.js',
+    'https://update.greasyfork.org/scripts/530526/1558038/ProgressUI-Module.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js'
+  ],
+  connect: [],
   "run-at": "document-end",
 };
