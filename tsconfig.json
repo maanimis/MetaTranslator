@@ -1,11 +1,25 @@
 {
   "compilerOptions": {
-    "outDir": "./dist/",
+    "allowJs": true,
+    "checkJs": false,
+    "outDir": "dist",
+    "strict": true,
+    "rootDir": "src",
+    "rewriteRelativeImportExtensions": true,
+    "removeComments": true,
     "esModuleInterop": true,
-    "noImplicitAny": true,
-    "moduleResolution": "Node",
-    "module": "ESNext",
-    "target": "ES2020",
-    "allowJs": true
-  }
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "declaration": false,
+    "allowSyntheticDefaultImports": true,
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js",
+    "skipLibCheck": true,
+    "lib": ["DOM", "ES6", "DOM.Iterable", "ScriptHost", "ESNext"]
+  },
+  "include": ["src/**/*"]
 }

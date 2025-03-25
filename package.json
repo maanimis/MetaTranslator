@@ -1,10 +1,10 @@
 {
-  "name": "webpack-userscript-template",
-  "description": "Build your UserScript with webpack",
-  "version": "0.0.1",
+  "name": "metatranslator",
+  "description": "Show translated tooltip on text selection",
+  "version": "0.1",
   "author": {
-    "name": "Trim21",
-    "email": "trim21me@gmail.com"
+    "name": "maanimis",
+    "email": "maanimis.dev@gmail.com"
   },
   "scripts": {
     "format": "prettier -w ./",
@@ -16,12 +16,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/trim21/webpack-userscript-template"
+    "url": "https://github.com/maanimis/MetaTranslator"
   },
   "private": true,
   "dependencies": {
     "@trim21/gm-fetch": "^0.2.4",
-    "jquery": "^3.7.1"
+    "jquery": "^3.7.1",
+    "jszip": "^3.10.1"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,json}": [
@@ -32,6 +33,7 @@
     "@types/greasemonkey": "^4.0.7",
     "@types/jquery": "^3.5.32",
     "@types/node": "^22.13.7",
+    "@violentmonkey/types": "^0.2.0",
     "browserslist": "^4.24.4",
     "cross-env": "^7.0.3",
     "css-loader": "^7.1.2",
