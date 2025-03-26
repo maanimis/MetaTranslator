@@ -9,10 +9,7 @@ class StorageHandler implements IStorageService {
     private gmStorageService: GMStorageService,
   ) {}
 
-  get<T extends keyof IStorage>(
-    key: StorageKey,
-    defaultValue: IStorage[T],
-  ): IStorage[T] {
+  get<T>(key: string, defaultValue: T): T {
     const sessionValue = this.sessionStorageService.get(key, defaultValue);
     if (sessionValue !== undefined && sessionValue !== null) {
       return sessionValue;
@@ -21,7 +18,7 @@ class StorageHandler implements IStorageService {
     return this.gmStorageService.get(key, defaultValue);
   }
 
-  set<T extends keyof IStorage>(key: T, value: IStorage[T]): void {
+  set<T>(key: string, value: T): void {
     this.sessionStorageService.set(key, value);
     this.gmStorageService.set(key, value);
   }
@@ -40,8 +37,8 @@ class StorageHandler implements IStorageService {
   }
 }
 
-const sessionStorageService = new SessionStorageService();
-const gmStorageService = new GMStorageService();
+export const sessionStorageService = new SessionStorageService();
+export const gmStorageService = new GMStorageService();
 
 export const storageHandler = new StorageHandler(
   sessionStorageService,

@@ -1,15 +1,11 @@
-import { StorageKey } from "./enum.storage";
 import { IStorage, IStorageEvent, IStorageService } from "./interface.storage";
 
 export class GMStorageService implements IStorageService, IStorageEvent {
-  get<T extends keyof IStorage>(
-    key: StorageKey,
-    defaultValue: IStorage[T],
-  ): IStorage[T] {
+  get<T>(key: string, defaultValue: T): T {
     return GM_getValue(key, defaultValue);
   }
 
-  set<T extends keyof IStorage>(key: T, value: IStorage[T]): void {
+  set<T>(key: string, value: T): void {
     GM_setValue(key, value);
   }
 

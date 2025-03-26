@@ -11,6 +11,7 @@ import { GoogleTranslator } from "./google/translator.google";
 import { ISelectionService } from "./interfaces.apibots";
 import { LocalStorageLanguageService } from "../language-storage.service";
 import { BrowserSelectionService } from "../selection.service";
+import { sessionStorageService } from "../../storage";
 
 class TranslationHandler {
   private readonly DEBOUNCE_DELAY = 300;
@@ -48,10 +49,17 @@ class TranslationHandler {
     const position = this.selectionService.getSelectionPosition();
     if (!position) return;
 
+    const cacheResult = sessionStorageService.get(selectedText, null);
+    if (cacheResult) {
+      this.tooltip.show(cacheResult, position.x, position.y);
+      return;
+    }
+
     try {
       const translationResult = await this.translator.translate(selectedText);
-      if (selectedText === translationResult.translation) return;
+
       const formattedText = this.formatter.format(translationResult);
+      sessionStorageService.set(selectedText, formattedText);
       this.tooltip.show(formattedText, position.x, position.y);
     } catch (error: any) {
       this.tooltip.show(`Error: ${error}`, position.x, position.y);

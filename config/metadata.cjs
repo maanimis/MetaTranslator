@@ -32,4 +32,5 @@ module.exports = {
   ],
   connect: [],
   "run-at": "document-end",
+  "inject-into": "content",
 };

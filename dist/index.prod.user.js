@@ -1,20 +1,21 @@
 // ==UserScript==
-// @name        MetaTranslator
-// @name:en     MetaTranslator
-// @namespace   Violentmonkey Scripts
-// @version     0.2
-// @author      maanimis <maanimis.dev@gmail.com>
-// @source      https://github.com/maanimis/MetaTranslator
-// @license     MIT
-// @match       *://*/*
-// @grant       GM_setValue
-// @grant       GM_getValue
-// @grant       GM_deleteValue
-// @grant       GM_addValueChangeListener
-// @grant       GM_registerMenuCommand
-// @grant       GM_unregisterMenuCommand
-// @grant       GM_xmlhttpRequest
-// @run-at      document-end
+// @name          MetaTranslator
+// @name:en       MetaTranslator
+// @namespace     Violentmonkey Scripts
+// @version       0.2.6
+// @author        maanimis <maanimis.dev@gmail.com>
+// @source        https://github.com/maanimis/MetaTranslator
+// @license       MIT
+// @match         *://*/*
+// @grant         GM_setValue
+// @grant         GM_getValue
+// @grant         GM_deleteValue
+// @grant         GM_addValueChangeListener
+// @grant         GM_registerMenuCommand
+// @grant         GM_unregisterMenuCommand
+// @grant         GM_xmlhttpRequest
+// @run-at        document-end
+// @inject-into   content
 // ==/UserScript==
 
 /******/ (() => { // webpackBootstrap
@@ -318,7 +319,7 @@ class LocalStorageLanguageService {
         return storageHandler.get("targetLang", "fa");
     }
     setTargetLanguage(lang) {
-        GM_setValue("targetLang", lang);
+        storageHandler.set("targetLang", lang);
     }
 }
 
@@ -343,6 +344,7 @@ class BrowserSelectionService {
 }
 
 ;// ./src/services/translators/apibots/index.ts
+
 
 
 
@@ -379,11 +381,15 @@ class TranslationHandler {
         const position = this.selectionService.getSelectionPosition();
         if (!position)
             return;
+        const cacheResult = sessionStorageService.get(selectedText, null);
+        if (cacheResult) {
+            this.tooltip.show(cacheResult, position.x, position.y);
+            return;
+        }
         try {
             const translationResult = await this.translator.translate(selectedText);
-            if (selectedText === translationResult.translation)
-                return;
             const formattedText = this.formatter.format(translationResult);
+            sessionStorageService.set(selectedText, formattedText);
             this.tooltip.show(formattedText, position.x, position.y);
         }
         catch (error) {

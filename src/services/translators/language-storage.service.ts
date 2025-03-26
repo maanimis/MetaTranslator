@@ -10,6 +10,6 @@ export class LocalStorageLanguageService implements ILanguageStorage {
   }
 
   setTargetLanguage(lang: string): void {
-    GM_setValue(StorageKey.targetLang, lang);
+    storageHandler.set(StorageKey.targetLang, lang);
   }
 }
