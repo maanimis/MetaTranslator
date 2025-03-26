@@ -3,6 +3,7 @@ const {
   dependencies,
   repository,
   version,
+  description
 } = require("../package.json");
 
 module.exports = {
@@ -16,6 +17,7 @@ module.exports = {
   source: repository.url,
   'license': 'MIT',
   match: ["*://*/*"],
+  description,
   grant: [
     "GM_setValue",
     "GM_getValue",
