@@ -1,25 +1,22 @@
-import { StorageKey } from "./enum.storage";
-import { IStorageEvent, IStorageService } from "./interface.storage";
+import { IStorage, IStorageEvent, IStorageService } from "./interface.storage";
 
-class GM_StorageService implements IStorageService, IStorageEvent {
-  get<T = null>(key: StorageKey, defaultValue: T): T {
+export class GMStorageService implements IStorageService, IStorageEvent {
+  get<T>(key: string, defaultValue: T): T {
     return GM_getValue(key, defaultValue);
   }
 
-  set<T>(key: StorageKey, value: T): void {
+  set<T>(key: string, value: T): void {
     GM_setValue(key, value);
   }
 
-  remove(key: StorageKey): void {
+  remove(key: keyof IStorage): void {
     GM_deleteValue(key);
   }
 
-  onChange<T>(
-    key: StorageKey,
-    callback: VMScriptGMValueChangeCallback<T>,
+  onChange<T extends keyof IStorage>(
+    key: T,
+    callback: VMScriptGMValueChangeCallback<IStorage[T]>,
   ): void {
     GM_addValueChangeListener(key, callback);
   }
 }
-
-export const GMStorageService = new GM_StorageService();

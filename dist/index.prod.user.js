@@ -1,23 +1,21 @@
 // ==UserScript==
-// @name        MetaTranslator
-// @name:en     MetaTranslator
-// @namespace   Violentmonkey Scripts
-// @version     0.1
-// @author      maanimis <maanimis.dev@gmail.com>
-// @source      https://github.com/maanimis/MetaTranslator
-// @license     MIT
-// @match       *://*/*
-// @grant       GM_setValue
-// @grant       GM_getValue
-// @grant       GM_deleteValue
-// @grant       GM_addValueChangeListener
-// @grant       GM_registerMenuCommand
-// @grant       GM_unregisterMenuCommand
-// @grant       GM_xmlhttpRequest
-// @require     https://update.greasyfork.org/scripts/530648/1558616/FileDownloader-Module.js
-// @require     https://update.greasyfork.org/scripts/530526/1558038/ProgressUI-Module.js
-// @require     https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js
-// @run-at      document-end
+// @name          MetaTranslator
+// @name:en       MetaTranslator
+// @namespace     Violentmonkey Scripts
+// @version       0.2.6
+// @author        maanimis <maanimis.dev@gmail.com>
+// @source        https://github.com/maanimis/MetaTranslator
+// @license       MIT
+// @match         *://*/*
+// @grant         GM_setValue
+// @grant         GM_getValue
+// @grant         GM_deleteValue
+// @grant         GM_addValueChangeListener
+// @grant         GM_registerMenuCommand
+// @grant         GM_unregisterMenuCommand
+// @grant         GM_xmlhttpRequest
+// @run-at        document-end
+// @inject-into   content
 // ==/UserScript==
 
 /******/ (() => { // webpackBootstrap
@@ -235,8 +233,32 @@ class GoogleTranslator {
     }
 }
 
+;// ./src/services/storage/cache.storage.ts
+class SessionStorageService {
+    get(key, defaultValue) {
+        const item = sessionStorage.getItem(key);
+        return item !== null ? JSON.parse(item) : defaultValue;
+    }
+    set(key, value) {
+        sessionStorage.setItem(key, JSON.stringify(value));
+    }
+    remove(key) {
+        sessionStorage.removeItem(key);
+    }
+    onChange(key, callback) {
+        const storageHandler = (event) => {
+            if (event.storageArea === sessionStorage && event.key === key) {
+                const newValue = event.newValue ? JSON.parse(event.newValue) : null;
+                const oldValue = event.oldValue ? JSON.parse(event.oldValue) : null;
+                callback(newValue, oldValue);
+            }
+        };
+        window.addEventListener("storage", storageHandler);
+    }
+}
+
 ;// ./src/services/storage/storage.service.ts
-class GM_StorageService {
+class GMStorageService {
     get(key, defaultValue) {
         return GM_getValue(key, defaultValue);
     }
@@ -250,7 +272,40 @@ class GM_StorageService {
         GM_addValueChangeListener(key, callback);
     }
 }
-const GMStorageService = new GM_StorageService();
+
+;// ./src/services/storage/handler.storage.ts
+
+
+class StorageHandler {
+    sessionStorageService;
+    gmStorageService;
+    constructor(sessionStorageService, gmStorageService) {
+        this.sessionStorageService = sessionStorageService;
+        this.gmStorageService = gmStorageService;
+    }
+    get(key, defaultValue) {
+        const sessionValue = this.sessionStorageService.get(key, defaultValue);
+        if (sessionValue !== undefined && sessionValue !== null) {
+            return sessionValue;
+        }
+        return this.gmStorageService.get(key, defaultValue);
+    }
+    set(key, value) {
+        this.sessionStorageService.set(key, value);
+        this.gmStorageService.set(key, value);
+    }
+    remove(key) {
+        this.sessionStorageService.remove(key);
+        this.gmStorageService.remove(key);
+    }
+    onChange(key, callback) {
+        this.sessionStorageService.onChange(key, callback);
+        this.gmStorageService.onChange(key, callback);
+    }
+}
+const sessionStorageService = new SessionStorageService();
+const gmStorageService = new GMStorageService();
+const storageHandler = new StorageHandler(sessionStorageService, gmStorageService);
 
 ;// ./src/services/storage/index.ts
 
@@ -261,10 +316,10 @@ const GMStorageService = new GM_StorageService();
 
 class LocalStorageLanguageService {
     getTargetLanguage() {
-        return GMStorageService.get("targetLang", "fa");
+        return storageHandler.get("targetLang", "fa");
     }
     setTargetLanguage(lang) {
-        GM_setValue("targetLang", lang);
+        storageHandler.set("targetLang", lang);
     }
 }
 
@@ -289,6 +344,7 @@ class BrowserSelectionService {
 }
 
 ;// ./src/services/translators/apibots/index.ts
+
 
 
 
@@ -325,11 +381,15 @@ class TranslationHandler {
         const position = this.selectionService.getSelectionPosition();
         if (!position)
             return;
+        const cacheResult = sessionStorageService.get(selectedText, null);
+        if (cacheResult) {
+            this.tooltip.show(cacheResult, position.x, position.y);
+            return;
+        }
         try {
             const translationResult = await this.translator.translate(selectedText);
-            if (selectedText === translationResult.translation)
-                return;
             const formattedText = this.formatter.format(translationResult);
+            sessionStorageService.set(selectedText, formattedText);
             this.tooltip.show(formattedText, position.x, position.y);
         }
         catch (error) {

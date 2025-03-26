@@ -1,47 +1,7 @@
-# This is a project help you build userscript with webpack
+# MetaTranslator
+This is a project help you build userscript with webpack
 
 Just [use this git repo as a template](https://github.com/Trim21/webpack-userscript-template/generate).
-
-[中文说明](./readme.cn.md)
-
-## dev
-
-1. Allow Tampermonkey's access to local file URIs [tampermonkey/faq](https://tampermonkey.net/faq.php?ext=dhdg#Q204)
-2. install deps with `npm i` or `npm ci`.
-3. `npm run dev` to start your development.
-
-Now you will see 2 files in `./dist/`
-
--   `dist/index.dev.user.js`: **You should install this userscript in your browser.** It's a simple loader that load `dist/index.debug.js` on matched web page.
--   `dist/index.debug.js`: This is the development build with `eval-source-map`. It will be automatically loaded by `dist/index.dev.user.js` via `@require file://.../dist/index.debug.js` metadata, **Don't add it to your userscript manager.**
-
-4. edit [src/index.ts](./src/index.ts), you can even import css or less files. You can use scss if you like.
-5. go wo <https://www.example.com/> and open console, you'll see it's working.
-
-livereload is default enabled, use [this Chrome extension](https://chrome.google.com/webstore/detail/jnihajbhpnppcggbcgedagnkighmdlei)
-
-### NOTICE
-
-Everytime you change your metadata config,
-you'll have to restart webpack server and install newly generated `dist/index.dev.user.js` UserScript in your browser again.
-
-## used package
-
-If you prefer some other bundler like rollup, you can use some of these packages directly.
-
-[userscript-metadata-generator](https://github.com/trim21/userscript-metadata-generator)
-
-[gm-fetch](https://github.com/trim21/gm-fetch)
-
-[userscript-metadata-webpack-plugin](https://github.com/trim21/userscript-metadata-webpack-plugin)
-
-## Cross Site Request
-
-you can call `GM.xmlHttpRequest` directly or use a fetch API based on `GM.xmlHttpRequest` <https://github.com/Trim21/gm-fetch>
-
-## TypeScript
-
-use typescript as normal, see [example](src/index.ts)
 
 ## dependencies
 

@@ -1,3 +1,3 @@
 export * from "./enum.storage";
 export * from "./interface.storage";
-export * from "./storage.service";
+export * from "./handler.storage";
