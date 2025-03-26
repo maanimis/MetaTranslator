@@ -2,11 +2,12 @@
 // @name          MetaTranslator
 // @name:en       MetaTranslator
 // @namespace     Violentmonkey Scripts
-// @version       0.2.6
+// @version       0.2.7
 // @author        maanimis <maanimis.dev@gmail.com>
 // @source        https://github.com/maanimis/MetaTranslator
 // @license       MIT
 // @match         *://*/*
+// @description   Show translated tooltip on text selection
 // @grant         GM_setValue
 // @grant         GM_getValue
 // @grant         GM_deleteValue
@@ -374,20 +375,21 @@ class TranslationHandler {
     }
     async onTextSelect() {
         const selectedText = this.selectionService.getSelectedText();
-        if (!selectedText) {
-            this.tooltip.hide();
-            return;
-        }
+        if (!selectedText)
+            return this.tooltip.hide();
         const position = this.selectionService.getSelectionPosition();
         if (!position)
             return;
-        const cacheResult = sessionStorageService.get(selectedText, null);
-        if (cacheResult) {
-            this.tooltip.show(cacheResult, position.x, position.y);
-            return;
-        }
+        const cachedResult = sessionStorageService.get(selectedText, null);
+        if (cachedResult)
+            return this.tooltip.show(cachedResult, position.x, position.y);
+        await this.fetchAndShowTranslation(selectedText, position);
+    }
+    async fetchAndShowTranslation(selectedText, position) {
         try {
             const translationResult = await this.translator.translate(selectedText);
+            if (translationResult.translation === selectedText)
+                return;
             const formattedText = this.formatter.format(translationResult);
             sessionStorageService.set(selectedText, formattedText);
             this.tooltip.show(formattedText, position.x, position.y);

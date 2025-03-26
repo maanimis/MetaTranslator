@@ -41,22 +41,25 @@ class TranslationHandler {
 
   private async onTextSelect(): Promise<void> {
     const selectedText = this.selectionService.getSelectedText();
-    if (!selectedText) {
-      this.tooltip.hide();
-      return;
-    }
+    if (!selectedText) return this.tooltip.hide();
 
     const position = this.selectionService.getSelectionPosition();
     if (!position) return;
 
-    const cacheResult = sessionStorageService.get(selectedText, null);
-    if (cacheResult) {
-      this.tooltip.show(cacheResult, position.x, position.y);
-      return;
-    }
+    const cachedResult = sessionStorageService.get(selectedText, null);
+    if (cachedResult)
+      return this.tooltip.show(cachedResult, position.x, position.y);
 
+    await this.fetchAndShowTranslation(selectedText, position);
+  }
+
+  private async fetchAndShowTranslation(
+    selectedText: string,
+    position: { x: number; y: number },
+  ): Promise<void> {
     try {
       const translationResult = await this.translator.translate(selectedText);
+      if (translationResult.translation === selectedText) return;
 
       const formattedText = this.formatter.format(translationResult);
       sessionStorageService.set(selectedText, formattedText);
