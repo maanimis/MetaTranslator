@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name          MetaTranslator
-// @name:en       MetaTranslator
+// @name:fa       مترجم متا
 // @namespace     Violentmonkey Scripts
-// @version       0.2.7
+// @version       0.3
 // @author        maanimis <maanimis.dev@gmail.com>
 // @source        https://github.com/maanimis/MetaTranslator
 // @license       MIT
@@ -15,12 +15,78 @@
 // @grant         GM_registerMenuCommand
 // @grant         GM_unregisterMenuCommand
 // @grant         GM_xmlhttpRequest
+// @icon          https://www.google.com/s2/favicons?sz=64&domain=translate.google.com
 // @run-at        document-end
 // @inject-into   content
+// @downloadURL   https://github.com/maanimis/MetaTranslator/releases/latest/download/index.prod.user.js
+// @updateURL     https://github.com/maanimis/MetaTranslator/releases/latest/download/index.prod.user.js
 // ==/UserScript==
 
 /******/ (() => { // webpackBootstrap
 /******/ 	"use strict";
+
+;// ./src/services/menu/menu.service.ts
+class MenuCommandRepository {
+    commands = new Map();
+    add(command) {
+        this.commands.set(command.name, command);
+    }
+    remove(name) {
+        const command = this.commands.get(name);
+        if (command) {
+            this.commands.delete(name);
+        }
+        return command;
+    }
+    get(name) {
+        return this.commands.get(name);
+    }
+    getAll() {
+        return Array.from(this.commands.values());
+    }
+    clear() {
+        this.commands.clear();
+    }
+    has(name) {
+        return Boolean(this.commands.get(name));
+    }
+}
+class MenuCommandService {
+    _repository;
+    constructor(_repository) {
+        this._repository = _repository;
+    }
+    register(name, callback) {
+        this.unregister(name);
+        const id = GM_registerMenuCommand(name, callback);
+        const command = { id, name, callback };
+        this._repository.add(command);
+        return command;
+    }
+    unregister(name) {
+        const command = this._repository.remove(name);
+        if (command) {
+            GM_unregisterMenuCommand(command.id);
+        }
+    }
+    unregisterAll() {
+        this._repository.getAll().forEach((command) => {
+            GM_unregisterMenuCommand(command.id);
+        });
+        this._repository.clear();
+    }
+}
+const createMenuCommandManager = () => {
+    const repository = new MenuCommandRepository();
+    return new MenuCommandService(repository);
+};
+const menuCommandManager = createMenuCommandManager();
+const registerMenuCommand = (name, callback) => menuCommandManager.register(name, callback).id;
+const unregisterMenuCommand = (name) => menuCommandManager.unregister(name);
+
+;// ./src/services/menu/index.ts
+
+
 
 ;// ./src/components/tooltip.component.ts
 class DOMTooltip {
@@ -352,6 +418,7 @@ class BrowserSelectionService {
 
 
 
+
 class TranslationHandler {
     tooltip;
     translator;
@@ -399,11 +466,15 @@ class TranslationHandler {
         }
     }
     registerLanguageMenu() {
-        GM_registerMenuCommand("Set Target Language", () => {
+        registerMenuCommand("Set Target Language", () => {
             const currentLang = this.languageStorage.getTargetLanguage();
             const input = prompt("Enter target language (fa,en,fr,de,...):", currentLang);
             if (input) {
                 this.languageStorage.setTargetLanguage(input);
+                ProgressUI.showQuick("[+]Refresh the page", {
+                    percent: 100,
+                    duration: 3000,
+                });
             }
         });
     }
@@ -421,8 +492,10 @@ function initApiTranslation() {
 
 ;// ./src/index.ts
 
+
 async function main() {
-    initApiTranslation();
+    const translationHandler = initApiTranslation();
+    registerMenuCommand("Translate Selected Text", () => translationHandler.onTextSelect());
 }
 main().catch((e) => {
     console.log(e);
