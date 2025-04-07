@@ -1,9 +1,8 @@
 # MetaTranslator
+
 This is a project help you build userscript with webpack
 
 Just [use this git repo as a template](https://github.com/Trim21/webpack-userscript-template/generate).
-
-
 
 ## Install
 
@@ -12,8 +11,8 @@ Just [use this git repo as a template](https://github.com/Trim21/webpack-userscr
 3. Click the file to install it, and you're all set!
 
 ### How to Use:
-- Simply select any text with your mouse, and it will be automatically translated.
 
+- Simply select any text with your mouse, and it will be automatically translated.
 
 ## dependencies
 
