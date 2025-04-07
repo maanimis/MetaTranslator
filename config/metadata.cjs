@@ -36,4 +36,6 @@ module.exports = {
   connect: [],
   "run-at": "document-end",
   "inject-into": "content",
+  "downloadURL":"https://github.com/maanimis/MetaTranslator/releases/latest/download/index.prod.user.js",
+  "updateURL":"https://github.com/maanimis/MetaTranslator/releases/latest/download/index.prod.user.js",
 };
