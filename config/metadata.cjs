@@ -9,7 +9,7 @@ const {
 module.exports = {
   name: {
     $: "MetaTranslator",
-    en: "MetaTranslator",
+    fa: "مترجم متا",
   },
   namespace: "Violentmonkey Scripts",
   version: version,
@@ -27,6 +27,7 @@ module.exports = {
     "GM_unregisterMenuCommand",
     "GM_xmlhttpRequest",
   ],
+  icon:'https://www.google.com/s2/favicons?sz=64&domain=translate.google.com',
   require: [
     // 'https://update.greasyfork.org/scripts/530648/1558616/FileDownloader-Module.js',
     // 'https://update.greasyfork.org/scripts/530526/1558038/ProgressUI-Module.js',
@@ -35,4 +36,6 @@ module.exports = {
   connect: [],
   "run-at": "document-end",
   "inject-into": "content",
+  "downloadURL":"https://github.com/maanimis/MetaTranslator/releases/latest/download/index.prod.user.js",
+  "updateURL":"https://github.com/maanimis/MetaTranslator/releases/latest/download/index.prod.user.js",
 };

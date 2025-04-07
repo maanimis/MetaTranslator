@@ -1,30 +1,5 @@
 export const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
 
-export function waitForElement(selector) {
-  return new Promise((resolve) => {
-    const ELEMENT = document.querySelector(selector);
-    if (ELEMENT) {
-      return resolve(ELEMENT);
-    }
-
-    console.log("can't find element for selector:", selector, "waiting...");
-
-    const observer = new MutationObserver(() => {
-      const ELEMENT = document.querySelector(selector);
-      if (ELEMENT) {
-        console.log("element found!!");
-        resolve(ELEMENT);
-        observer.disconnect();
-      }
-    });
-
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-    });
-  });
-}
-
 export async function extractTextBetweenElements(
   startSelector,
   endSelector,
