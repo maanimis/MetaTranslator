@@ -3,6 +3,18 @@ This is a project help you build userscript with webpack
 
 Just [use this git repo as a template](https://github.com/Trim21/webpack-userscript-template/generate).
 
+
+
+## Install
+
+1. Install one of the **Violentmonkey** or **Tampermonkey** extensions (available for all browsers).
+2. Go to the [Releases](https://github.com/maanimis/MetaTranslator/releases) section, where you'll find a `.js` file.
+3. Click the file to install it, and you're all set!
+
+### How to Use:
+- Simply select any text with your mouse, and it will be automatically translated.
+
+
 ## dependencies
 
 There are two ways to using a package on npm.
