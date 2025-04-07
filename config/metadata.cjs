@@ -9,7 +9,7 @@ const {
 module.exports = {
   name: {
     $: "MetaTranslator",
-    en: "MetaTranslator",
+    fa: "مترجم متا",
   },
   namespace: "Violentmonkey Scripts",
   version: version,
