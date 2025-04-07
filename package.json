@@ -20,6 +20,7 @@
   },
   "private": true,
   "dependencies": {
+    "ejs": "^3.1.10",
     "jquery": "^3.7.1",
     "jszip": "^3.10.1"
   },
@@ -29,6 +30,7 @@
     ]
   },
   "devDependencies": {
+    "@types/ejs": "^3.1.5",
     "@types/greasemonkey": "^4.0.7",
     "@types/jquery": "^3.5.32",
     "@types/node": "^22.13.7",
