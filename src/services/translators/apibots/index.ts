@@ -12,6 +12,7 @@ import { ISelectionService } from "./interfaces.apibots";
 import { LocalStorageLanguageService } from "../language-storage.service";
 import { BrowserSelectionService } from "../selection.service";
 import { sessionStorageService } from "../../storage";
+import { registerMenuCommand } from "../../menu";
 
 class TranslationHandler {
   private readonly DEBOUNCE_DELAY = 300;
@@ -70,7 +71,7 @@ class TranslationHandler {
   }
 
   private registerLanguageMenu(): void {
-    GM_registerMenuCommand("Set Target Language", () => {
+    registerMenuCommand("Set Target Language", () => {
       const currentLang = this.languageStorage.getTargetLanguage();
       const input = prompt(
         "Enter target language (fa,en,fr,de,...):",
@@ -79,7 +80,10 @@ class TranslationHandler {
 
       if (input) {
         this.languageStorage.setTargetLanguage(input);
-        // alert(`Target language set to "${input}"`);
+        ProgressUI.showQuick("[+]Refresh the page", {
+          percent: 100,
+          duration: 3000,
+        });
       }
     });
   }
