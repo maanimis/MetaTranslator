@@ -40,7 +40,7 @@ class TranslationHandler {
     this.registerLanguageMenu();
   }
 
-  private async onTextSelect(): Promise<void> {
+  public async onTextSelect(): Promise<void> {
     const selectedText = this.selectionService.getSelectedText();
     if (!selectedText) return this.tooltip.hide();
 
