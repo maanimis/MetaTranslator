@@ -1,8 +1,7 @@
 import { DOMTooltip } from "./components/tooltip.component";
 import { GoogleTranslationFormatter } from "./components/translation-formatter.component";
 import { MenuKey, menuCommandSingleton } from "./services/menu";
-import { TranslationHandler } from "./services/translators/apibots";
-import { GoogleTranslator } from "./services/translators/apibots/google/translator.google";
+import { GoogleTranslator } from "./services/translators/apibots/google/google.translator";
 import { LocalStorageLanguageService } from "./services/translators/language-storage.service";
 import { BrowserSelectionService } from "./services/translators/selection.service";
 import { TranslationHandler } from "./services/translators/translation-handler.service";

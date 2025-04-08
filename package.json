@@ -1,7 +1,7 @@
 {
   "name": "metatranslator",
   "description": "Show translated tooltip on text selection",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "author": {
     "name": "maanimis",
     "email": "maanimis.dev@gmail.com"
@@ -20,7 +20,6 @@
   },
   "private": true,
   "dependencies": {
-    "ejs": "^3.1.10",
     "jquery": "^3.7.1",
     "jszip": "^3.10.1"
   },
@@ -30,7 +29,6 @@
     ]
   },
   "devDependencies": {
-    "@types/ejs": "^3.1.5",
     "@types/jquery": "^3.5.32",
     "@types/node": "^22.13.7",
     "@violentmonkey/types": "^0.2.0",
