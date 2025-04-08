@@ -5,6 +5,7 @@ export interface ITranslatorService {
 }
 
 export interface ILanguageStorage {
+  getSourceLanguage(): string;
   getTargetLanguage(): string;
   setTargetLanguage(lang: string): void;
 }

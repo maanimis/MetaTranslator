@@ -9,9 +9,10 @@ import { BrowserSelectionService } from "./services/translators/selection.servic
 async function main() {
   const languageStorage = new LocalStorageLanguageService();
   const targetLang = languageStorage.getTargetLanguage();
+  const sourceLang = languageStorage.getSourceLanguage();
   const selectionService = new BrowserSelectionService();
   const tooltip = new DOMTooltip();
-  const translator = new GoogleTranslator("auto", targetLang);
+  const translator = new GoogleTranslator(sourceLang, targetLang);
   const formatter = new GoogleTranslationFormatter();
 
   const translationHandler = new TranslationHandler(
