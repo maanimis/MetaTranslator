@@ -21,9 +21,6 @@ importers:
       '@types/ejs':
         specifier: ^3.1.5
         version: 3.1.5
-      '@types/greasemonkey':
-        specifier: ^4.0.7
-        version: 4.0.7
       '@types/jquery':
         specifier: ^3.5.32
         version: 3.5.32
@@ -127,9 +124,6 @@ packages:
 
   '@types/estree@1.0.7':
     resolution: {integrity: sha512-w28IoSUCJpidD/TGviZwwMJckNESJZXFu7NBZ5YJ4mEUnNraUn9Pm8HSZm/jDF1pDWYKspWE7oVphigUPRakIQ==}
-
-  '@types/greasemonkey@4.0.7':
-    resolution: {integrity: sha512-DuYBRf/T4zixO/xhQ3eicZCBjjOgbSSXuHP5XkLNf/UBayrJpBniP9il/AQaPy0lffl4Bco48zgHL+pZmQ6Q0A==}
 
   '@types/jquery@3.5.32':
     resolution: {integrity: sha512-b9Xbf4CkMqS02YH8zACqN1xzdxc3cO735Qe5AbSUFmyOiaWAbcpqh9Wna+Uk0vgACvoQHpWDg2rGdHkYPLmCiQ==}
@@ -1236,8 +1230,6 @@ snapshots:
       '@types/json-schema': 7.0.15
 
   '@types/estree@1.0.7': {}
-
-  '@types/greasemonkey@4.0.7': {}
 
   '@types/jquery@3.5.32':
     dependencies:

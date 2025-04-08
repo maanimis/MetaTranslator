@@ -33,7 +33,7 @@ class MenuCommandRepository implements IMenuCommandRepository {
 }
 
 class MenuCommandService {
-  constructor(private _repository: IMenuCommandRepository) {}
+  private _repository: IMenuCommandRepository = new MenuCommandRepository();
 
   register(name: string, callback: () => void): MenuCommand {
     this.unregister(name);
@@ -63,17 +63,6 @@ class MenuCommandService {
   }
 }
 
-const createMenuCommandManager = (): MenuCommandService => {
-  const repository = new MenuCommandRepository();
-  return new MenuCommandService(repository);
-};
+const menuCommandSingleton = new MenuCommandService();
 
-export const menuCommandManager = createMenuCommandManager();
-
-export const registerMenuCommand = (
-  name: string,
-  callback: () => void,
-): string => menuCommandManager.register(name, callback).id;
-
-export const unregisterMenuCommand = (name: string): void =>
-  menuCommandManager.unregister(name);
+export { menuCommandSingleton };

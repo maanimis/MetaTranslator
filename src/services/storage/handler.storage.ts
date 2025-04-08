@@ -1,46 +1,47 @@
-import { SessionStorageService } from "./cache.storage";
-import { StorageKey } from "./enum.storage";
+import {
+  SessionStorageService,
+  sessionStorageSingleton,
+} from "./cache.storage";
 import { IStorage, IStorageService } from "./interface.storage";
-import { GMStorageService } from "./storage.service";
+import { GMStorageService, gmStorageSingleton } from "./storage.service";
 
 class StorageHandler implements IStorageService {
   constructor(
-    private sessionStorageService: SessionStorageService,
-    private gmStorageService: GMStorageService,
+    private sessionStorageSingleton: SessionStorageService,
+    private gmStorageSingleton: GMStorageService,
   ) {}
 
   get<T>(key: string, defaultValue: T): T {
-    const sessionValue = this.sessionStorageService.get(key, defaultValue);
+    const sessionValue = this.sessionStorageSingleton.get(key, defaultValue);
     if (sessionValue !== undefined && sessionValue !== null) {
       return sessionValue;
     }
 
-    return this.gmStorageService.get(key, defaultValue);
+    return this.gmStorageSingleton.get(key, defaultValue);
   }
 
   set<T>(key: string, value: T): void {
-    this.sessionStorageService.set(key, value);
-    this.gmStorageService.set(key, value);
+    this.sessionStorageSingleton.set(key, value);
+    this.gmStorageSingleton.set(key, value);
   }
 
   remove(key: keyof IStorage): void {
-    this.sessionStorageService.remove(key);
-    this.gmStorageService.remove(key);
+    this.sessionStorageSingleton.remove(key);
+    this.gmStorageSingleton.remove(key);
   }
 
   onChange<T extends keyof IStorage>(
     key: T,
     callback: (newValue: IStorage[T], oldValue: IStorage[T]) => void,
   ): void {
-    this.sessionStorageService.onChange(key, callback);
-    this.gmStorageService.onChange(key, callback);
+    this.sessionStorageSingleton.onChange(key, callback);
+    this.gmStorageSingleton.onChange(key, callback);
   }
 }
 
-export const sessionStorageService = new SessionStorageService();
-export const gmStorageService = new GMStorageService();
-
-export const storageHandler = new StorageHandler(
-  sessionStorageService,
-  gmStorageService,
+const storageHandlerSingleton = new StorageHandler(
+  sessionStorageSingleton,
+  gmStorageSingleton,
 );
+
+export { storageHandlerSingleton };
