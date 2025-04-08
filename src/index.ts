@@ -1,6 +1,6 @@
 import { DOMTooltip } from "./components/tooltip.component";
 import { GoogleTranslationFormatter } from "./components/translation-formatter.component";
-import { registerMenuCommand } from "./services/menu";
+import { MenuKey, registerMenuCommand } from "./services/menu";
 import { TranslationHandler } from "./services/translators/apibots";
 import { GoogleTranslator } from "./services/translators/apibots/google/translator.google";
 import { LocalStorageLanguageService } from "./services/translators/language-storage.service";
@@ -26,7 +26,7 @@ async function main() {
   translationHandler.registerLanguageMenu();
 
   registerMenuCommand(
-    "Translate Selected Text",
+    MenuKey.translateText,
     translationHandler.handleTextSelection,
   );
 }

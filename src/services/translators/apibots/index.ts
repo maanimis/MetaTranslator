@@ -6,7 +6,7 @@ import {
   ILanguageStorage,
 } from "../interface.translators";
 import { ISelectionService } from "./interfaces.apibots";
-import { registerMenuCommand } from "../../menu";
+import { MenuKey, registerMenuCommand } from "../../menu";
 import { ITranslationHandler, storageHandlerSingleton } from "../../storage";
 
 class TranslationHandler implements ITranslationHandler {
@@ -35,9 +35,7 @@ class TranslationHandler implements ITranslationHandler {
   }
 
   public registerLanguageMenu(): void {
-    registerMenuCommand("Set Target Language", () =>
-      this.promptLanguageChange(),
-    );
+    registerMenuCommand(MenuKey.targetLang, () => this.promptLanguageChange());
   }
 
   private promptLanguageChange(): void {
