@@ -1,4 +1,4 @@
-import { ISelectionService } from "./apibots/interfaces.apibots";
+import { ISelectionService } from "./interface.translators";
 
 export class BrowserSelectionService implements ISelectionService {
   private readonly TOOLTIP_OFFSET_Y = 40;

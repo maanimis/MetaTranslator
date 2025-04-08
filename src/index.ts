@@ -5,6 +5,7 @@ import { TranslationHandler } from "./services/translators/apibots";
 import { GoogleTranslator } from "./services/translators/apibots/google/translator.google";
 import { LocalStorageLanguageService } from "./services/translators/language-storage.service";
 import { BrowserSelectionService } from "./services/translators/selection.service";
+import { TranslationHandler } from "./services/translators/translation-handler.service";
 
 async function main() {
   const languageStorage = new LocalStorageLanguageService();

@@ -21,10 +21,3 @@ export interface IStorageService {
 export interface ICache {
   [key: string]: string;
 }
-
-export interface ITranslationHandler {
-  setupListeners(): void;
-  registerLanguageMenu(): void;
-  handleTextSelection(): Promise<void>;
-  showTooltip(content: string): boolean;
-}

@@ -1,13 +1,14 @@
-import { ITooltip } from "../../../components/interfaces.components";
-import { Debouncer } from "../../../utils";
-import {
+import { ITooltip } from "../../components/interfaces.components";
+import { Debouncer } from "../../utils";
+import { menuCommandSingleton, MenuKey } from "../menu";
+import { storageHandlerSingleton } from "../storage";
+import type {
+  ITranslationHandler,
   ITranslator,
   ITranslationFormatter,
+  ISelectionService,
   ILanguageStorage,
-} from "../interface.translators";
-import { ISelectionService } from "./interfaces.apibots";
-import { MenuKey, menuCommandSingleton } from "../../menu";
-import { ITranslationHandler, storageHandlerSingleton } from "../../storage";
+} from "./interface.translators";
 
 class TranslationHandler implements ITranslationHandler {
   private readonly DEBOUNCE_DELAY = 300;
