@@ -1,6 +1,6 @@
 import { IStorage, IStorageEvent, IStorageService } from "./interface.storage";
 
-export class SessionStorageService implements IStorageService, IStorageEvent {
+class SessionStorageService implements IStorageService, IStorageEvent {
   get<T>(key: string, defaultValue: T): T {
     const item = sessionStorage.getItem(key);
     return item !== null ? JSON.parse(item) : defaultValue;
@@ -28,3 +28,7 @@ export class SessionStorageService implements IStorageService, IStorageEvent {
     window.addEventListener("storage", storageHandler);
   }
 }
+
+const sessionStorageSingleton = new SessionStorageService();
+
+export { SessionStorageService, sessionStorageSingleton };

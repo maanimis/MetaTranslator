@@ -1,110 +1,97 @@
 import { ITooltip } from "../../../components/interfaces.components";
-import { DOMTooltip } from "../../../components/tooltip.component";
-import { GoogleTranslationFormatter } from "../../../components/translation-formatter.component";
 import { Debouncer } from "../../../utils";
 import {
   ITranslator,
   ITranslationFormatter,
   ILanguageStorage,
 } from "../interface.translators";
-import { GoogleTranslator } from "./google/translator.google";
 import { ISelectionService } from "./interfaces.apibots";
-import { LocalStorageLanguageService } from "../language-storage.service";
-import { BrowserSelectionService } from "../selection.service";
-import { sessionStorageService } from "../../storage";
 import { registerMenuCommand } from "../../menu";
+import { ITranslationHandler, storageHandlerSingleton } from "../../storage";
 
-class TranslationHandler {
+class TranslationHandler implements ITranslationHandler {
   private readonly DEBOUNCE_DELAY = 300;
+  private readonly debouncer = new Debouncer();
 
   constructor(
-    private tooltip: ITooltip,
-    private translator: ITranslator,
-    private formatter: ITranslationFormatter,
-    private selectionService: ISelectionService,
-    private languageStorage: ILanguageStorage,
-  ) {
-    this.initialize();
-  }
+    private readonly tooltip: ITooltip,
+    private readonly translator: ITranslator,
+    private readonly formatter: ITranslationFormatter,
+    private readonly selectionService: ISelectionService,
+    private readonly languageStorage: ILanguageStorage,
+    private readonly progressUI = ProgressUI,
+  ) {}
 
-  private initialize(): void {
-    const debouncer = new Debouncer();
-
+  public setupListeners(): void {
     document.addEventListener(
       "mouseup",
-      debouncer.debounce(() => this.onTextSelect(), this.DEBOUNCE_DELAY),
+      this.debouncer.debounce(
+        () => this.handleTextSelection(),
+        this.DEBOUNCE_DELAY,
+      ),
     );
 
     document.addEventListener("mousedown", () => this.tooltip.hide());
-
-    this.registerLanguageMenu();
   }
 
-  public async onTextSelect(): Promise<void> {
-    const selectedText = this.selectionService.getSelectedText();
-    if (!selectedText) return this.tooltip.hide();
-
-    const position = this.selectionService.getSelectionPosition();
-    if (!position) return;
-
-    const cachedResult = sessionStorageService.get(selectedText, null);
-    if (cachedResult)
-      return this.tooltip.show(cachedResult, position.x, position.y);
-
-    await this.fetchAndShowTranslation(selectedText, position);
+  public registerLanguageMenu(): void {
+    registerMenuCommand("Set Target Language", () =>
+      this.promptLanguageChange(),
+    );
   }
 
-  private async fetchAndShowTranslation(
-    selectedText: string,
-    position: { x: number; y: number },
-  ): Promise<void> {
-    try {
-      const translationResult = await this.translator.translate(selectedText);
-      if (translationResult.translation === selectedText) return;
+  private promptLanguageChange(): void {
+    const currentLang = this.languageStorage.getTargetLanguage();
+    const input = prompt(
+      "Enter target language (fa, en, fr, de, ...):",
+      currentLang,
+    );
 
-      const formattedText = this.formatter.format(translationResult);
-      sessionStorageService.set(selectedText, formattedText);
-      this.tooltip.show(formattedText, position.x, position.y);
-    } catch (error: any) {
-      this.tooltip.show(`Error: ${error}`, position.x, position.y);
+    if (input) {
+      this.languageStorage.setTargetLanguage(input);
+      this.progressUI.showQuick("[+] Refresh the page", {
+        percent: 100,
+        duration: 3000,
+      });
     }
   }
 
-  private registerLanguageMenu(): void {
-    registerMenuCommand("Set Target Language", () => {
-      const currentLang = this.languageStorage.getTargetLanguage();
-      const input = prompt(
-        "Enter target language (fa,en,fr,de,...):",
-        currentLang,
-      );
+  public async handleTextSelection(): Promise<void> {
+    this.showTooltip("...");
+    const selectedText = this.selectionService.getSelectedText();
+    if (!selectedText) {
+      this.tooltip.hide();
+      return;
+    }
 
-      if (input) {
-        this.languageStorage.setTargetLanguage(input);
-        ProgressUI.showQuick("[+]Refresh the page", {
-          percent: 100,
-          duration: 3000,
-        });
-      }
-    });
+    const cached = storageHandlerSingleton.get(selectedText, null);
+
+    cached
+      ? this.showTooltip(cached)
+      : this.fetchAndShowTranslation(selectedText);
+  }
+
+  private async fetchAndShowTranslation(text: string): Promise<void> {
+    try {
+      const result = await this.translator.translate(text);
+
+      if (result.translation === text) return;
+
+      const formatted = this.formatter.format(result);
+      storageHandlerSingleton.set(text, formatted);
+
+      this.showTooltip(formatted);
+    } catch (error: any) {
+      this.showTooltip(`Error: ${error}`);
+    }
+  }
+
+  public showTooltip(content: string): boolean {
+    const position = this.selectionService.getSelectionPosition();
+    if (!position) return false;
+    this.tooltip.show(content, position.x, position.y);
+    return true;
   }
 }
 
-// Composition Root
-function initApiTranslation() {
-  const languageStorage = new LocalStorageLanguageService();
-  const targetLang = languageStorage.getTargetLanguage();
-  const selectionService = new BrowserSelectionService();
-  const tooltip = new DOMTooltip();
-  const translator = new GoogleTranslator("auto", targetLang);
-  const formatter = new GoogleTranslationFormatter();
-
-  return new TranslationHandler(
-    tooltip,
-    translator,
-    formatter,
-    selectionService,
-    languageStorage,
-  );
-}
-
-export { initApiTranslation };
+export { TranslationHandler };

@@ -1,6 +1,6 @@
 import { IStorage, IStorageEvent, IStorageService } from "./interface.storage";
 
-export class GMStorageService implements IStorageService, IStorageEvent {
+class GMStorageService implements IStorageService, IStorageEvent {
   get<T>(key: string, defaultValue: T): T {
     return GM_getValue(key, defaultValue);
   }
@@ -20,3 +20,7 @@ export class GMStorageService implements IStorageService, IStorageEvent {
     GM_addValueChangeListener(key, callback);
   }
 }
+
+const gmStorageSingleton = new GMStorageService();
+
+export { gmStorageSingleton, GMStorageService };
