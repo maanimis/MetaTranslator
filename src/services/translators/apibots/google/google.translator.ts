@@ -1,12 +1,9 @@
 import { HTTPClient } from "../../../http-client";
-import {
-  ILanguageStorage,
-  ITranslator,
-  TranslationResult,
-} from "../../interface.translators";
+import { ITranslator, TranslationResult } from "../../interface.translators";
+import { LanguageService } from "../../language-storage.service";
 
 export class GoogleTranslator implements ITranslator {
-  constructor(private languageStorage: ILanguageStorage) {}
+  constructor() {}
 
   async translate(text: string): Promise<TranslationResult> {
     const url = this.buildTranslateUrl(text);
@@ -26,8 +23,8 @@ export class GoogleTranslator implements ITranslator {
   }
 
   private buildTranslateUrl(text: string): string {
-    const targetLang = this.languageStorage.getTargetLanguage();
-    const sourceLang = this.languageStorage.getSourceLanguage();
+    const targetLang = LanguageService.getTargetLanguage();
+    const sourceLang = LanguageService.getSourceLanguage();
     const url =
       `https://translate.googleapis.com/translate_a/single?` +
       `client=gtx&sl=${sourceLang}&tl=${targetLang}` +

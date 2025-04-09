@@ -1,14 +1,15 @@
 import { ITooltip } from "../../components/interfaces.components";
 import { Debouncer } from "../../utils";
 import { menuCommandSingleton, MenuKey } from "../menu";
-import { storageHandlerSingleton } from "../storage";
+import { sessionStorageSingleton } from "../storage/cache.storage";
+
 import type {
   ITranslationHandler,
   ITranslator,
   ITranslationFormatter,
   ISelectionService,
-  ILanguageStorage,
 } from "./interface.translators";
+import { LanguageService } from "./language-storage.service";
 
 class TranslationHandler implements ITranslationHandler {
   private readonly DEBOUNCE_DELAY = 300;
@@ -19,7 +20,6 @@ class TranslationHandler implements ITranslationHandler {
     private readonly translator: ITranslator,
     private readonly formatter: ITranslationFormatter,
     private readonly selectionService: ISelectionService,
-    private readonly languageStorage: ILanguageStorage,
     private readonly progressUI = ProgressUI,
   ) {}
 
@@ -42,14 +42,14 @@ class TranslationHandler implements ITranslationHandler {
   }
 
   private promptLanguageChange(): void {
-    const currentLang = this.languageStorage.getTargetLanguage();
+    const currentLang = LanguageService.getTargetLanguage();
     const input = prompt(
       "Enter target language (fa, en, fr, de, ...):",
       currentLang,
     );
 
     if (input) {
-      this.languageStorage.setTargetLanguage(input);
+      LanguageService.setTargetLanguage(input);
       this.progressUI.showQuick("[+] Refresh the page", {
         percent: 100,
         duration: 3000,
@@ -65,7 +65,7 @@ class TranslationHandler implements ITranslationHandler {
       return;
     }
 
-    const cached = storageHandlerSingleton.get(selectedText, null);
+    const cached = sessionStorageSingleton.get(selectedText, null);
 
     cached
       ? this.showTooltip(cached)
@@ -79,7 +79,7 @@ class TranslationHandler implements ITranslationHandler {
       if (result.translation === text) return;
 
       const formatted = this.formatter.format(result);
-      storageHandlerSingleton.set(text, formatted);
+      sessionStorageSingleton.set(text, formatted);
 
       this.showTooltip(formatted);
     } catch (error: any) {

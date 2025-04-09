@@ -16,7 +16,7 @@ export class HTTPClient {
 
   static async post(
     url: string,
-    data: unknown,
+    data: object,
     headers: Record<string, string> = {},
   ): Promise<RequestType> {
     return this.request(HttpMethod.POST, url, {

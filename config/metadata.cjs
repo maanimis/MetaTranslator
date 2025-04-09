@@ -26,8 +26,8 @@ module.exports = {
     "GM_registerMenuCommand",
     "GM_unregisterMenuCommand",
     "GM_xmlhttpRequest",
-    "GM_addStyle",
-    "GM_getResourceText",
+    // "GM_addStyle",
+    // "GM_getResourceText",
   ],
   icon: "https://www.google.com/s2/favicons?sz=64&domain=translate.google.com",
   require: [
