@@ -1,5 +1,8 @@
 export const enum StorageKey {
   lastUsed = "lastUsed",
   targetLang = "targetLang",
-  defaultTargetLang = "fa",
+  translationMode = "translationMode",
+  geminiToken = "geminiApiToken",
 }
+
+export type TranslationModeKey = StorageKey.geminiToken;

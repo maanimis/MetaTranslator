@@ -2,12 +2,6 @@ export interface ITranslatorService {
   translate(text: string): Promise<string>;
 }
 
-export interface ILanguageStorage {
-  getSourceLanguage(): string;
-  getTargetLanguage(): string;
-  setTargetLanguage(lang: string): void;
-}
-
 export interface TranslationResult {
   translation: string;
   dictionary?: DictionaryEntry[];

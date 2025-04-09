@@ -1,8 +1,11 @@
+import { Config } from "../../config";
 import { StorageKey } from "./enum.storage";
 
 export interface IStorage {
   [StorageKey.targetLang]: string;
-  [StorageKey.defaultTargetLang]: string;
+  [StorageKey.geminiToken]: string;
+  [StorageKey.translationMode]: string;
+  [Config.defaultTargetLang]: string;
 }
 
 export interface IStorageEvent {

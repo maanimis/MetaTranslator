@@ -1,19 +1,21 @@
+import { Config } from "../../config";
 import { storageHandlerSingleton, StorageKey } from "../storage";
-import { ILanguageStorage } from "./interface.translators";
 
-export class LocalStorageLanguageService implements ILanguageStorage {
-  getSourceLanguage(): string {
+export class LanguageService {
+  private constructor() {}
+
+  static getSourceLanguage(): string {
     return "auto";
   }
 
-  getTargetLanguage(): string {
+  static getTargetLanguage(): string {
     return storageHandlerSingleton.get(
       StorageKey.targetLang,
-      StorageKey.defaultTargetLang,
+      Config.defaultTargetLang,
     );
   }
 
-  setTargetLanguage(lang: string): void {
+  static setTargetLanguage(lang: string): void {
     storageHandlerSingleton.set(StorageKey.targetLang, lang);
   }
 }
