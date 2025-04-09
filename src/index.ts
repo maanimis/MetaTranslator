@@ -8,11 +8,9 @@ import { TranslationHandler } from "./services/translators/translation-handler.s
 
 async function main() {
   const languageStorage = new LocalStorageLanguageService();
-  const targetLang = languageStorage.getTargetLanguage();
-  const sourceLang = languageStorage.getSourceLanguage();
   const selectionService = new BrowserSelectionService();
   const tooltip = new DOMTooltip();
-  const translator = new GoogleTranslator(sourceLang, targetLang);
+  const translator = new GoogleTranslator(languageStorage);
   const formatter = new GoogleTranslationFormatter();
 
   const translationHandler = new TranslationHandler(

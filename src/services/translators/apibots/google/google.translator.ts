@@ -1,14 +1,15 @@
 import { HTTPClient } from "../../../http-client";
-import { ITranslator, TranslationResult } from "../../interface.translators";
+import {
+  ILanguageStorage,
+  ITranslator,
+  TranslationResult,
+} from "../../interface.translators";
 
 export class GoogleTranslator implements ITranslator {
-  constructor(
-    private sourceLang: string,
-    private getTargetLang: string,
-  ) {}
+  constructor(private languageStorage: ILanguageStorage) {}
 
   async translate(text: string): Promise<TranslationResult> {
-    const url = this.buildTranslateUrl(text, this.getTargetLang);
+    const url = this.buildTranslateUrl(text);
 
     try {
       const responseText = await HTTPClient.get(url);
@@ -24,12 +25,14 @@ export class GoogleTranslator implements ITranslator {
     }
   }
 
-  private buildTranslateUrl(text: string, targetLang: string): string {
-    return (
+  private buildTranslateUrl(text: string): string {
+    const targetLang = this.languageStorage.getTargetLanguage();
+    const sourceLang = this.languageStorage.getSourceLanguage();
+    const url =
       `https://translate.googleapis.com/translate_a/single?` +
-      `client=gtx&sl=${this.sourceLang}&tl=${targetLang}` +
-      `&dt=t&dt=bd&dj=1&q=${encodeURIComponent(text)}`
-    );
+      `client=gtx&sl=${sourceLang}&tl=${targetLang}` +
+      `&dt=t&dt=bd&dj=1&q=${encodeURIComponent(text)}`;
+    return url;
   }
 
   private parseTranslationResponse(responseText: string): TranslationResult {
