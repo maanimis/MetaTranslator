@@ -1,6 +1,9 @@
 import { HTTPClient } from "../../../http-client";
 import { ITranslator, TranslationResult } from "../../interface.translators";
 import { LanguageService } from "../../language-storage.service";
+import debug from "debug";
+
+const log = debug("app:api:google");
 
 export class GoogleTranslator implements ITranslator {
   constructor() {}
@@ -10,6 +13,8 @@ export class GoogleTranslator implements ITranslator {
 
     try {
       const responseText = await HTTPClient.get(url);
+      log("response: %s", responseText);
+
       if (typeof responseText !== "string") {
         throw new Error("Invalid response type");
       }
@@ -25,6 +30,9 @@ export class GoogleTranslator implements ITranslator {
   private buildTranslateUrl(text: string): string {
     const targetLang = LanguageService.getTargetLanguage();
     const sourceLang = LanguageService.getSourceLanguage();
+    log("targetLang: %s", targetLang);
+    log("sourceLang: %s", sourceLang);
+
     const url =
       `https://translate.googleapis.com/translate_a/single?` +
       `client=gtx&sl=${sourceLang}&tl=${targetLang}` +
@@ -52,6 +60,7 @@ export class GoogleTranslator implements ITranslator {
         }));
       }
 
+      log("parsed response: %o", result);
       return result;
     } catch (error) {
       throw new Error("Failed to parse translation response");

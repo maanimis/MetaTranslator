@@ -2,6 +2,9 @@ import {
   ITranslationFormatter,
   TranslationResult,
 } from "../services/translators/interface.translators";
+import debug from "debug";
+
+const log = debug("app:formatter:google");
 
 export class GoogleTranslationFormatter implements ITranslationFormatter {
   format(result: TranslationResult): string {
@@ -16,6 +19,7 @@ export class GoogleTranslationFormatter implements ITranslationFormatter {
       });
     }
 
+    log(output);
     return output;
   }
 }

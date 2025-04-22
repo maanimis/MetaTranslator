@@ -1,8 +1,8 @@
 import { ITooltip } from "../../components/interfaces.components";
 import { Debouncer } from "../../utils";
-import { menuCommandSingleton, MenuKey } from "../menu";
-import { sessionStorageSingleton } from "../storage/cache.storage";
-
+import { menuCommandService, MenuKey } from "../menu";
+import { IStorageService } from "../storage";
+import { sessionStorageService } from "../storage/cache.storage";
 import type {
   ITranslationHandler,
   ITranslator,
@@ -10,17 +10,22 @@ import type {
   ISelectionService,
 } from "./interface.translators";
 import { LanguageService } from "./language-storage.service";
+import debug from "debug";
+
+const log = debug("app:TranslationHandler");
 
 class TranslationHandler implements ITranslationHandler {
-  private readonly DEBOUNCE_DELAY = 300;
+  // private storageSerivce:IStorageService=gmStorageService
+  private cacheSerivce: IStorageService = sessionStorageService;
+  private readonly progressUI = ProgressUI;
   private readonly debouncer = new Debouncer();
+  private readonly DEBOUNCE_DELAY = 300;
 
   constructor(
     private readonly tooltip: ITooltip,
     private readonly translator: ITranslator,
     private readonly formatter: ITranslationFormatter,
     private readonly selectionService: ISelectionService,
-    private readonly progressUI = ProgressUI,
   ) {}
 
   public setupListeners(): void {
@@ -36,17 +41,22 @@ class TranslationHandler implements ITranslationHandler {
   }
 
   public registerLanguageMenu(): void {
-    menuCommandSingleton.register(MenuKey.targetLang, () =>
+    log("register menu: %s", MenuKey.targetLang);
+    menuCommandService.register(MenuKey.targetLang, () =>
       this.promptLanguageChange(),
     );
   }
 
   private promptLanguageChange(): void {
     const currentLang = LanguageService.getTargetLanguage();
+    log("currentLang: %s", currentLang);
+
     const input = prompt(
       "Enter target language (fa, en, fr, de, ...):",
       currentLang,
     );
+
+    log("prompt value: %s", input);
 
     if (input) {
       LanguageService.setTargetLanguage(input);
@@ -58,6 +68,7 @@ class TranslationHandler implements ITranslationHandler {
   }
 
   public async handleTextSelection(): Promise<void> {
+    log("loading...");
     this.showTooltip("...");
     const selectedText = this.selectionService.getSelectedText();
     if (!selectedText) {
@@ -65,21 +76,31 @@ class TranslationHandler implements ITranslationHandler {
       return;
     }
 
-    const cached = sessionStorageSingleton.get(selectedText, null);
+    const cached = this.cacheSerivce.get(selectedText, null);
 
-    cached
-      ? this.showTooltip(cached)
-      : this.fetchAndShowTranslation(selectedText);
+    if (cached) {
+      log("getting from cache...");
+      this.showTooltip(cached);
+    } else {
+      log("getting from request...");
+
+      this.fetchAndShowTranslation(selectedText);
+    }
   }
 
   private async fetchAndShowTranslation(text: string): Promise<void> {
     try {
       const result = await this.translator.translate(text);
 
-      if (result.translation === text) return;
+      if (result.translation === text) {
+        log("same text detected!!");
+        this.tooltip.hide();
+
+        return;
+      }
 
       const formatted = this.formatter.format(result);
-      sessionStorageSingleton.set(text, formatted);
+      this.cacheSerivce.set(text, formatted);
 
       this.showTooltip(formatted);
     } catch (error: any) {
@@ -88,10 +109,16 @@ class TranslationHandler implements ITranslationHandler {
   }
 
   public showTooltip(content: string): boolean {
+    let result: boolean = true;
+
     const position = this.selectionService.getSelectionPosition();
-    if (!position) return false;
-    this.tooltip.show(content, position.x, position.y);
-    return true;
+    if (position) {
+      this.tooltip.show(content, position.x, position.y);
+    } else {
+      result = false;
+    }
+
+    return result;
   }
 }
 

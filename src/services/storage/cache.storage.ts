@@ -16,19 +16,19 @@ class SessionStorageService implements IStorageService, IStorageEvent {
 
   onChange<T extends keyof IStorage>(
     key: T,
-    callback: (newValue: IStorage[T], oldValue: IStorage[T]) => void,
+    callback: VMScriptGMValueChangeCallback<IStorage[T]>,
   ): void {
     const storageHandler = (event: StorageEvent) => {
       if (event.storageArea === sessionStorage && event.key === key) {
         const newValue = event.newValue ? JSON.parse(event.newValue) : null;
         const oldValue = event.oldValue ? JSON.parse(event.oldValue) : null;
-        callback(newValue, oldValue);
+        callback("storage", newValue, oldValue, true);
       }
     };
     window.addEventListener("storage", storageHandler);
   }
 }
 
-const sessionStorageSingleton = new SessionStorageService();
+const sessionStorageService = new SessionStorageService();
 
-export { SessionStorageService, sessionStorageSingleton };
+export { sessionStorageService };

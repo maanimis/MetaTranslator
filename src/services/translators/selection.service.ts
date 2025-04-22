@@ -1,4 +1,7 @@
 import { ISelectionService } from "./interface.translators";
+import debug from "debug";
+
+const log = debug("app:selection");
 
 export class BrowserSelectionService implements ISelectionService {
   private readonly TOOLTIP_OFFSET_Y = 40;
@@ -6,7 +9,9 @@ export class BrowserSelectionService implements ISelectionService {
   getSelectedText(): string | null {
     const selection = window.getSelection();
     const text = selection?.toString().trim();
-    return text || null;
+    const result = text || null;
+    log("text: %s", result);
+    return result;
   }
 
   getSelectionPosition(): { x: number; y: number } | null {
@@ -14,9 +19,11 @@ export class BrowserSelectionService implements ISelectionService {
     if (!selection || selection.rangeCount === 0) return null;
 
     const rect = selection.getRangeAt(0).getBoundingClientRect();
-    return {
+    const result = {
       x: rect.left + window.scrollX,
       y: rect.top + window.scrollY - this.TOOLTIP_OFFSET_Y,
     };
+    log("position: %o", result);
+    return result;
   }
 }
