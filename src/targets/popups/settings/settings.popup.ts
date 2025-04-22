@@ -1,51 +1,65 @@
 import {
-  TranslationModeKey,
-  storageHandlerSingleton,
-  StorageKey,
-} from "../../services/storage";
-import { LanguageService } from "../../services/translators/language-storage.service";
-import {
   ElementCollection,
   TranslationConfig,
   TranslationModeValue,
 } from "../interfaces.popup";
+import debug from "debug";
+import { StorageKey, IStorage } from "../../../services/storage";
+import { LanguageService } from "../../../services/translators/language-storage.service";
+import { gmStorageService } from "../../../services/storage/storage.service";
 
-// Single Responsibility - Settings Storage
+const log = debug("app:popup");
+
 class SettingsStorage {
+  // private static logger=log.extend("SettingsStorage")
+  private static languageService = LanguageService;
+
   public static saveLanguage(language: string): void {
-    LanguageService.setTargetLanguage(language);
+    this.languageService.setTargetLanguage(language);
+    // this.logger('setLanguage: %s',language)
   }
 
   public static getLanguage(): string {
-    return LanguageService.getTargetLanguage();
+    const result = this.languageService.getTargetLanguage();
+    // this.logger('getLanguage: %s',result)
+
+    return result;
   }
 
   public static saveMode(mode: TranslationModeValue): void {
-    storageHandlerSingleton.set(StorageKey.translationMode, mode);
+    gmStorageService.set(StorageKey.translationMode, mode);
+    // this.logger('setTranslationMode: %s',mode)
   }
 
-  public static getMode(): string {
-    return storageHandlerSingleton.get(
+  public static getMode(): TranslationModeValue {
+    const result = gmStorageService.get(
       StorageKey.translationMode,
       TranslationModeValue.google,
     );
+    // this.logger('getTranslationMode: %s',result)
+    return result;
   }
 
-  public static saveApiToken(service: TranslationModeKey, token: string): void {
+  public static saveApiToken(service: keyof IStorage, token: string): void {
+    // this.logger('saveApiToken[%s]: %s',service,token)
+
     if (token) {
-      storageHandlerSingleton.set(service, token);
+      gmStorageService.set(service, token);
     } else {
-      storageHandlerSingleton.remove(service);
+      gmStorageService.remove(service);
     }
   }
 
-  public static getApiToken(service: TranslationModeKey): string {
-    return storageHandlerSingleton.get(service, "");
+  public static getApiToken(service: StorageKey): string {
+    const result = gmStorageService.get(service, "");
+    // this.logger('getApiToken[%s]: %s',service,result)
+    return result;
   }
 }
 
-// Single Responsibility - DOM Interaction
 class DomManipulator {
+  private static logger = log.extend("DomManipulator");
+
   public static togglePopup(popup: HTMLElement, active: boolean): void {
     if (active) {
       popup.classList.add("active");
@@ -57,7 +71,7 @@ class DomManipulator {
   }
 
   public static toggleTokenContainer(
-    mode: string,
+    mode: TranslationModeValue,
     elements: ElementCollection,
   ): void {
     // Hide all containers first
@@ -88,11 +102,10 @@ class DomManipulator {
   }
 
   public static logAction(action: string, data: any): void {
-    console.log(`[${action}]`, data);
+    this.logger("[%s]%o", action, data);
   }
 }
 
-// Main class following Open/Closed principle (extendable design)
 class TranslationSettings {
   private elements: ElementCollection;
   private isPopupActive: boolean = false;
@@ -156,7 +169,7 @@ class TranslationSettings {
         const radioInput = option.querySelector(
           'input[type="radio"]',
         ) as HTMLInputElement;
-        const mode = radioInput.value;
+        const mode = radioInput.value as TranslationModeValue;
 
         radioInput.checked = true;
         this.elements.radioOptions.forEach((opt) =>
@@ -177,7 +190,7 @@ class TranslationSettings {
 
   private loadSettings(): void {
     const savedLanguage = SettingsStorage.getLanguage();
-    const savedMode = SettingsStorage.getMode();
+    const savedMode: TranslationModeValue = SettingsStorage.getMode();
 
     this.elements.targetLanguageSelect.value = savedLanguage;
     const modeRadio = document.querySelector(
@@ -240,7 +253,7 @@ class TranslationSettings {
     this.togglePopup();
   }
 
-  private saveApiToken(service: TranslationModeKey): void {
+  private saveApiToken(service: keyof IStorage): void {
     const tokenInput =
       service === StorageKey.geminiToken
         ? this.elements.geminiTokenInput

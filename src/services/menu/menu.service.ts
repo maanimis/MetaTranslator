@@ -1,4 +1,7 @@
 import { IMenuCommandRepository, MenuCommand } from "./interface.menu";
+import debug from "debug";
+
+const log = debug("app:menu");
 
 class MenuCommandRepository implements IMenuCommandRepository {
   private commands = new Map<string, MenuCommand>();
@@ -37,6 +40,7 @@ class MenuCommandService {
 
   register(name: string, callback: () => void): MenuCommand {
     this.unregister(name);
+    log("registering: %s", name);
 
     const id = GM_registerMenuCommand(name, callback);
     const command: MenuCommand = { id, name, callback };
@@ -47,6 +51,8 @@ class MenuCommandService {
   }
 
   unregister(name: string): void {
+    // log('unregistering: %s',name)
+
     const command = this._repository.remove(name);
 
     if (command) {
@@ -55,6 +61,7 @@ class MenuCommandService {
   }
 
   unregisterAll(): void {
+    log("unregistering all");
     this._repository.getAll().forEach((command) => {
       GM_unregisterMenuCommand(command.id);
     });
@@ -63,6 +70,6 @@ class MenuCommandService {
   }
 }
 
-const menuCommandSingleton = new MenuCommandService();
+const menuCommandService = new MenuCommandService();
 
-export { menuCommandSingleton };
+export { menuCommandService };

@@ -3,6 +3,5 @@ export const enum StorageKey {
   targetLang = "targetLang",
   translationMode = "translationMode",
   geminiToken = "geminiApiToken",
+  debugMode = "debugMode",
 }
-
-export type TranslationModeKey = StorageKey.geminiToken;

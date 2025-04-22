@@ -2,48 +2,89 @@ import { DefaultFormatter } from "./components/default-formatter.component";
 import { DOMTooltip } from "./components/tooltip.component";
 import { GoogleTranslationFormatter } from "./components/translation-formatter.component";
 import { Config } from "./config";
-import { TranslationModeValue } from "./popups/interfaces.popup";
-import { TranslationSettings } from "./popups/settings/settings.popup";
-import { menuCommandSingleton, MenuKey } from "./services/menu";
+import { menuCommandService, MenuKey } from "./services/menu";
 import { StorageKey } from "./services/storage";
-import { gmStorageSingleton } from "./services/storage/storage.service";
+import { gmStorageService } from "./services/storage/storage.service";
 import { GeminiTranslator } from "./services/translators/apibots/google/gemini.translator";
 import { GoogleTranslator } from "./services/translators/apibots/google/google.translator";
+import {
+  ITranslationFormatter,
+  ITranslator,
+} from "./services/translators/interface.translators";
 import { BrowserSelectionService } from "./services/translators/selection.service";
 import { TranslationHandler } from "./services/translators/translation-handler.service";
+import debug from "debug";
+import { TranslationModeValue } from "./targets/popups/interfaces.popup";
+import { DomainParser } from "./dom";
+import { isValidTargetKey, Targets } from "./targets/youtube";
 
-// Constants
-const DEFAULT_TRANSLATION_MODE = TranslationModeValue.google;
-const SETTINGS_PATH = Config.settings;
+//TODO: save raw text instead formated at storage
+//TODO: add html at local
+// TODO:
 
-// Translator Factory - encapsulates translator creation logic
-class TranslatorFactory {
-  static create(translationMode: TranslationModeValue) {
-    switch (translationMode) {
-      case TranslationModeValue.geminiApi:
-        return {
-          translator: new GeminiTranslator(),
-          formatter: new DefaultFormatter(),
-        };
-      default:
-        return {
-          translator: new GoogleTranslator(),
-          formatter: new GoogleTranslationFormatter(),
-        };
-    }
-  }
+const log = debug("app:main");
 
-  static getCurrentTranslator() {
-    const translationMode = gmStorageSingleton.get<TranslationModeValue>(
-      StorageKey.translationMode,
-      DEFAULT_TRANSLATION_MODE,
-    );
-    return this.create(translationMode);
+interface TranslationService {
+  translator: ITranslator;
+  formatter: ITranslationFormatter;
+}
+
+interface TranslationServiceCreator {
+  create(): TranslationService;
+}
+
+class GeminiTranslationService implements TranslationServiceCreator {
+  create(): TranslationService {
+    return {
+      translator: new GeminiTranslator(),
+      formatter: new DefaultFormatter(),
+    };
   }
 }
 
-// Application Service - main coordination logic
+class GoogleTranslationService implements TranslationServiceCreator {
+  create(): TranslationService {
+    return {
+      translator: new GoogleTranslator(),
+      formatter: new GoogleTranslationFormatter(),
+    };
+  }
+}
+
+class TranslatorFactory {
+  private static serviceCreators: Record<
+    TranslationModeValue,
+    TranslationServiceCreator
+  > = {
+    [TranslationModeValue.geminiApi]: new GeminiTranslationService(),
+    [TranslationModeValue.google]: new GoogleTranslationService(),
+  };
+
+  static create(translationMode: TranslationModeValue): TranslationService {
+    const creator =
+      this.serviceCreators[translationMode] ||
+      this.serviceCreators[TranslationModeValue.google];
+    return creator.create();
+  }
+
+  static getCurrentTranslator(): TranslationService {
+    const translationMode = gmStorageService.get<TranslationModeValue>(
+      StorageKey.translationMode,
+      TranslationModeValue.google,
+    );
+    return this.create(translationMode);
+  }
+
+  static registerService(
+    mode: TranslationModeValue,
+    creator: TranslationServiceCreator,
+  ): void {
+    this.serviceCreators[mode] = creator;
+  }
+}
+
 class TranslationApplication {
+  private logger = log.extend("TranslationApplication");
   private selectionService: BrowserSelectionService;
   private tooltip: DOMTooltip;
   private translationHandler: TranslationHandler;
@@ -64,7 +105,7 @@ class TranslationApplication {
   initialize() {
     this.setupEventListeners();
     this.registerMenuCommands();
-    this.handleSettingsPage();
+    this.handleTargets();
   }
 
   private setupEventListeners() {
@@ -72,103 +113,74 @@ class TranslationApplication {
   }
 
   private registerMenuCommands() {
-    menuCommandSingleton.register(
+    menuCommandService.register(
       MenuKey.translateText,
       this.translationHandler.handleTextSelection.bind(this.translationHandler),
     );
 
-    menuCommandSingleton.register(MenuKey.settings, () => {
-      window.location.href = SETTINGS_PATH;
+    menuCommandService.register(MenuKey.settings, () => {
+      window.location.href = Config.settings;
+    });
+
+    menuCommandService.register(MenuKey.debugMode, () => {
+      DebugModeHandler.toogle();
     });
   }
 
-  private handleSettingsPage() {
-    if (window.location.href === SETTINGS_PATH) {
-      new TranslationSettings().togglePopup();
+  private handleTargets() {
+    const { name } = DomainParser.parse();
+    if (isValidTargetKey(name)) {
+      const target = Targets[name];
+      target();
     }
   }
 }
 
-// Main entry point with error handling
+class DebugModeHandler {
+  private static defaultValue = Config.isDebugMode;
+
+  static init() {
+    localStorage.debug = "app:*";
+    const isEnable = gmStorageService.get(
+      StorageKey.debugMode,
+      this.defaultValue,
+    );
+    if (isEnable) {
+      debug.enable("*");
+    } else {
+      debug.disable();
+    }
+  }
+
+  static toogle() {
+    if (debug.enabled("*")) {
+      this.setOFF();
+      alert("Disabled!!");
+    } else {
+      this.setON();
+      alert("Enabled!!");
+    }
+  }
+
+  private static setON() {
+    gmStorageService.set(StorageKey.debugMode, true);
+    debug.enable("*");
+  }
+
+  private static setOFF() {
+    gmStorageService.set(StorageKey.debugMode, false);
+    debug.disable();
+  }
+}
+
 async function bootstrapApplication() {
   try {
+    DebugModeHandler.init();
     const app = new TranslationApplication();
-    await app.initialize();
+    app.initialize();
   } catch (error) {
     console.error("Application initialization failed:", error);
-    // Consider adding error reporting here
   }
 }
 
-// Start the application
 bootstrapApplication();
-
-/*
-
-import { DefaultFormatter } from "./components/default-formatter.component";
-import { DOMTooltip } from "./components/tooltip.component";
-import { GoogleTranslationFormatter } from "./components/translation-formatter.component";
-import { Config } from "./config";
-import { TranslationModeValue } from "./popups/interfaces.popup";
-import { TranslationSettings } from "./popups/settings/settings.popup";
-import { MenuKey, menuCommandSingleton } from "./services/menu";
-import { StorageKey } from "./services/storage";
-import { gmStorageSingleton } from "./services/storage/storage.service";
-import { GeminiTranslator } from "./services/translators/apibots/google/gemini.translator";
-import { GoogleTranslator } from "./services/translators/apibots/google/google.translator";
-import { BrowserSelectionService } from "./services/translators/selection.service";
-import { TranslationHandler } from "./services/translators/translation-handler.service";
-
-function getTranslator() {
-  const translationMode = gmStorageSingleton.get<TranslationModeValue>(
-    StorageKey.translationMode,
-    TranslationModeValue.google,
-  );
-  if (translationMode === TranslationModeValue.geminiApi) {
-    return {
-      translator: new GeminiTranslator(),
-      formatter: new DefaultFormatter(),
-    };
-  }
-
-  return {
-    translator: new GoogleTranslator(),
-    formatter: new GoogleTranslationFormatter(),
-  };
-}
-
-async function main() {
-  const url = location.href;
-  const selectionService = new BrowserSelectionService();
-  const tooltip = new DOMTooltip();
-  const { translator, formatter } = getTranslator();
-
-  const translationHandler = new TranslationHandler(
-    tooltip,
-    translator,
-    formatter,
-    selectionService,
-  );
-  translationHandler.setupListeners();
-  // translationHandler.registerLanguageMenu();
-
-  menuCommandSingleton.register(
-    MenuKey.translateText,
-    translationHandler.handleTextSelection,
-  );
-  menuCommandSingleton.register(MenuKey.settings, () => {
-    location.href = Config.settings;
-  });
-
-  if (url === Config.settings) {
-    const translationSettings = new TranslationSettings();
-    translationSettings.togglePopup();
-  }
-}
-
-main().catch((e) => {
-  console.log(e);
-});
-
-
-*/

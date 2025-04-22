@@ -3,3 +3,6 @@ node_modules
 .vscode
 dist/
 .temp
+# src/pages/   
+src/services/translators/chatbots/
+# *.html
