@@ -29,7 +29,7 @@ importers:
         version: 22.14.0
       '@violentmonkey/types':
         specifier: ^0.2.0
-        version: 0.2.1
+        version: 0.2.2
       browserslist:
         specifier: ^4.24.4
         version: 4.24.4
@@ -140,8 +140,8 @@ packages:
   '@types/sizzle@2.3.9':
     resolution: {integrity: sha512-xzLEyKB50yqCUPUJkIsrVvoWNfFUbIZI+RspLWt8u+tIW/BetMBZtgV2LY/2o+tYH8dRvQ+eoPf3NdhQCcLE2w==}
 
-  '@violentmonkey/types@0.2.1':
-    resolution: {integrity: sha512-bugmnnPvHR/vM5qONp48X4+iJCdOkzDQ3RDhugU7EY0J3IRdeayyvXCPbJvSxezFEryMD7pAr4oLVfmoeV8nQg==}
+  '@violentmonkey/types@0.2.2':
+    resolution: {integrity: sha512-GevxuHWYq9I2bDjqUV13Yw2Fmnv4GK0YpEENwsxgn5/s39kOvJtdtqXJhemczq1Wb9xDtEWf1AM+HQe2HcWNsA==}
 
   '@webassemblyjs/ast@1.14.1':
     resolution: {integrity: sha512-nuBEDgQfm1ccRp/8bCQrx1frohyufl4JlbMMZ4P1wpeOfDhF6FQkxZJ1b/e+PLwr6X1Nhw6OLme5usuBWYBvuQ==}
@@ -1218,7 +1218,7 @@ snapshots:
 
   '@types/sizzle@2.3.9': {}
 
-  '@violentmonkey/types@0.2.1':
+  '@violentmonkey/types@0.2.2':
     dependencies:
       user-agent-data-types: 0.4.2
 
